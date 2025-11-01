@@ -4,9 +4,6 @@
 # Autor: Elias Araujo
 # Descarga, descomprime y ejecuta el instalador desde Wine.
 # ==============================================================
-# Uso:
-#   sudo ./install_cs_method1.sh
-# ==============================================================
 
 set -euo pipefail
 
@@ -40,12 +37,17 @@ apt install -y wine winetricks wget unzip
 # --- DESCARGA ---
 cd "$WORK_DIR"
 echo ">>> Descargando instalador de Counter-Strike 1.6..."
-if wget -q -O "$ZIP_NAME" "$DOWNLOAD_URL"; then
-  echo "✅ Descarga completada: $ZIP_NAME"
-else
-  echo "❌ Error al descargar el archivo ZIP."
+echo "URL: $DOWNLOAD_URL"
+echo
+echo "📦 Descargando, por favor espera..."
+wget --progress=dot:mega -O "$ZIP_NAME" "$DOWNLOAD_URL"
+
+if [[ ! -f "$ZIP_NAME" ]]; then
+  echo "❌ Error: el archivo no se descargó correctamente."
   exit 2
 fi
+
+echo "✅ Descarga completada: $ZIP_NAME"
 
 # --- DESCOMPRESIÓN ---
 echo ">>> Descomprimiendo contenido..."
@@ -71,7 +73,7 @@ fi
 
 sudo -u "$SUDO_USER" env WINEPREFIX="$WINEPREFIX" WINEARCH="$WINEARCH" wineboot >/dev/null 2>&1 || true
 
-echo ">>> Instalando fuentes y librerías básicas..."
+echo ">>> Instalando fuentes y librerías básicas con Winetricks..."
 sudo -u "$SUDO_USER" env WINEPREFIX="$WINEPREFIX" winetricks -q corefonts vcrun6 || true
 
 # --- EJECUTAR INSTALADOR ---
@@ -81,7 +83,7 @@ sudo -u "$SUDO_USER" env WINEPREFIX="$WINEPREFIX" wine "$EXTRACT_DIR/$INSTALLER_
 # --- FINAL ---
 echo
 echo "✅ Instalación iniciada correctamente."
-echo "Cuando finalice, ejecuta el juego con:"
+echo "Cuando finalice, podrás ejecutar el juego con:"
 echo "  env WINEPREFIX=\"$WINEPREFIX\" wine \"\$WINEPREFIX/drive_c/Program Files/Counter-Strike/hl.exe\""
 echo
 echo "🎮 ¡Disfruta de Counter-Strike 1.6 en Ubuntu!"
